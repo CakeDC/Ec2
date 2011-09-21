@@ -47,7 +47,21 @@ class AmazonServer extends CakeDocument {
 	public $modified;
 
 /**
- * Pause the instance (Only works for EBS backed instances)
+ * Resume a paused (stopped) instance. Only works for EBS backed instances
+ *
+ * @return boolean True if the operation was a success
+ */
+	public function start() {
+		if (!$this->instanceId) {
+			throw new EC2_Exception('AmazonServer has no instance Id');
+		}
+		$ec2 = new AmazonEc2();
+		$response = $ec2->start_instances($this->instanceId);
+		return $this->_amazonResponseOK($response);
+	}
+
+/**
+ * Pause the instance Only works for EBS backed instances
  *
  * @return boolean True if the operation was a success
  */
