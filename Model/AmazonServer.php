@@ -23,6 +23,14 @@ class AmazonServer extends CakeDocument {
 	public $instanceId;
 
 /**
+ * Region in which the instance operates
+ *
+ * @ODM\String
+ * @var string
+ */
+	public $region;
+
+/**
  * The Amazon Image ID (AMI) to use
  *
  * @ODM\String
@@ -95,7 +103,7 @@ class AmazonServer extends CakeDocument {
 		if (!$this->imageId) {
 			throw new EC2_Exception('AmazonServer has no Image ID');
 		}
-		$ec2 = new AmazonEc2();
+		$ec2 = $this->_getEC2Object();
 		$response = $ec2->run_instances(
 			$this->imageId,
 			$this->minimum,
@@ -114,7 +122,7 @@ class AmazonServer extends CakeDocument {
 		if (!$this->instanceId) {
 			throw new EC2_Exception('AmazonServer has no instance Id');
 		}
-		$ec2 = new AmazonEc2();
+		$ec2 = $this->_getEC2Object();
 		$response = $ec2->start_instances($this->instanceId);
 		return $this->_amazonResponseOK($response);
 	}
@@ -128,7 +136,7 @@ class AmazonServer extends CakeDocument {
 		if (!$this->instanceId) {
 			throw new EC2_Exception('AmazonServer has no instance Id');
 		}
-		$ec2 = new AmazonEc2();
+		$ec2 = $this->_getEC2Object();
 		$response = $ec2->stop_instances($this->instanceId);
 		return $this->_amazonResponseOK($response);
 	}
@@ -141,5 +149,18 @@ class AmazonServer extends CakeDocument {
  */
 	protected function _amazonResponseOk(CFResponse $response) {
 		return $response->isOK();
+	}
+
+/**
+ * Get an EC2 Object to work work, and set its region if available.
+ *
+ * @return AmazonEC2
+ */
+	protected function _getEC2Object() {
+		$ec2 = new AmazonEC2();
+		if (!empty($this->region)) {
+			$ec2->set_region($this->region);
+		}
+		return $ec2;
 	}
 }
