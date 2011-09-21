@@ -1,6 +1,7 @@
 <?php
-App::import('Vendor', 'CFRuntime', null, null, 'AWSSDKforPHP/sdk.class.php')
 use Doctrine\ODM\MongoDB\Mapping\Annotations as ODM;
+
+App::import('Vendor', 'CFRuntime', null, null, 'AWSSDKforPHP/sdk.class.php');
 App::uses('CakeDocument', 'MongoCake.Model');
 
 /** @ODM\Document */
@@ -36,7 +37,7 @@ class AmazonServer extends CakeDocument {
  * @ODM\String
  * @var string
  */
-	public $imageId
+	public $imageId;
 
 /**
  * Minimum number of instances to start
@@ -108,7 +109,7 @@ class AmazonServer extends CakeDocument {
 			$this->imageId,
 			$this->minimum,
 			$this->maximum,
-			$this->options,
+			$this->options
 		);
 		return $this->_amazonResponseOK($response);
 	}
