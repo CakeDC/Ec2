@@ -23,12 +23,44 @@ class AmazonServer extends CakeDocument {
 	public $instanceId;
 
 /**
+ * The Amazon Image ID (AMI) to use
+ *
+ * @ODM\String
+ * @var string
+ */
+	public $imageId
+
+/**
+ * Minimum number of instances to start
+ *
+ * @ODM\Int
+ * @var int
+ */
+	public $minimum = 1;
+	
+/**
+ * Maximum number of instances to start
+ *
+ * @ODM\Int
+ * @var int
+ */
+	public $maximum = 1;
+
+/**
  * Public IP Address (DNS)
  *
  * @ODM\String
  * @var string
  */
 	public $ipAddress;
+
+/**
+ * Run options
+ *
+ * @ODM\Hash
+ * @var array
+ */
+	public $options;
 
 /**
  * Creation date and time
@@ -45,6 +77,33 @@ class AmazonServer extends CakeDocument {
  * @var DateTime
  */
 	public $modified;
+
+/**
+ * Constructor
+ *
+ */
+	public function __construct() {
+		$this->options = array();
+	}
+
+/**
+ * Start a new instance
+ *
+ * @return boolean True if the operation was a success
+ */
+	public function run() {
+		if (!$this->imageId) {
+			throw new EC2_Exception('AmazonServer has no Image ID');
+		}
+		$ec2 = new AmazonEc2();
+		$response = $ec2->run_instances(
+			$this->imageId,
+			$this->minimum,
+			$this->maximum,
+			$this->options,
+		);
+		return $this->_amazonResponseOK($response);
+	}
 
 /**
  * Resume a paused (stopped) instance. Only works for EBS backed instances
