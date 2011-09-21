@@ -114,6 +114,22 @@ class AmazonServer extends CakeDocument {
 	}
 
 /**
+ * Get a list of all available instances
+ *
+ * @return void
+ * @todo Replace this with a find() implementation
+ */
+	public function describe() {
+		if (!$this->instanceId) {
+			throw new EC2_Exception('AmazonServer has no instance Id');
+		}
+		$ec2 = $this->_getEC2Object();
+		$response = $ec2->describe_instances();
+		var_dump($response);
+		return $this->_amazonResponseOK($response);
+	}
+
+/**
  * Resume a paused (stopped) instance. Only works for EBS backed instances
  *
  * @return boolean True if the operation was a success
@@ -138,6 +154,20 @@ class AmazonServer extends CakeDocument {
 		}
 		$ec2 = $this->_getEC2Object();
 		$response = $ec2->stop_instances($this->instanceId);
+		return $this->_amazonResponseOK($response);
+	}
+
+/**
+ * Reboot an instance
+ *
+ * @return boolean True if the operation was successful
+ */
+	public function reboot() {
+		if (!$this->instanceId) {
+			throw new EC2_Exception('AmazonServer has no instance Id');
+		}
+		$ec2 = $this->_getEC2Object();
+		$response = $ec2->reboot_instances($this->instanceId);
 		return $this->_amazonResponseOK($response);
 	}
 
