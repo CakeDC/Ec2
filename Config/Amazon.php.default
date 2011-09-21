@@ -1,0 +1,14 @@
+<?php
+$config = array('Amazon' => array(
+ 	'AWS_KEY'            => '',
+	'AWS_SECRET_KEY'     => '',
+	'AWS_ACCOUNT_ID'     => '',
+	'AWS_CANONICAL_ID'   => '',
+	'AWS_CANONICAL_NAME' => '',
+	'AWS_CERTIFICATE_AUTHORITY' => false,
+	'AWS_DEFAULT_CACHE_CONFIG'  => '',
+	'AWS_MFA_SERIAL'            => '',
+	'AWS_CLOUDFRONT_KEYPAIR_ID' => '',
+	'AWS_CLOUDFRONT_PRIVATE_KEY_PEM' => '',
+	'AWS_ENABLE_EXTENSIONS' => 'false',
+));
