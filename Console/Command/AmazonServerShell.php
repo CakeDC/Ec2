@@ -34,9 +34,8 @@ class AmazonServerShell extends Shell {
 
 		/*** END TESTING DATA ***/
 
-		debug($Server->run());
-
-//		debug($Server->find('all'));
+		$response = $Server->run();
+		$this->_instanceDetail($response->instancesSet->item);
 	}
 
 	public function describe() {
@@ -44,32 +43,59 @@ class AmazonServerShell extends Shell {
 		$instances = $Server->describe();
 		foreach ($instances as $i) {
 			$i = $i->instancesSet->item;
-			$this->out(sprintf('<info>Instance ( ID: %s )</info>', $i->instanceId));
-			$this->out(sprintf('   - Status  : %s', $i->instanceState->name));
-			$this->out(sprintf('   - Type    : %s', $i->instanceType));
-			$this->out(sprintf('   - AMI     : %s', $i->imageId));
-			$this->out(sprintf('   - Region  : %s', $i->placement->availabilityZone));
-			$this->out(sprintf('   - Launched: %s', $i->launchTime));
-			$this->out();
+			$this->_instanceDetail($i);
 		}
 	}
 	
-	public function stop() {
+	protected function _instanceDetail($i) {
+		$this->out(sprintf('<info>Instance ( ID: %s )</info>', $i->instanceId));
+		$this->out(sprintf('   - Status  : %s', $this->_decorateStatus($i->instanceState->name)));
+		$this->out(sprintf('   - Type    : %s', $i->instanceType));
+		$this->out(sprintf('   - AMI     : %s', $i->imageId));
+		$this->out(sprintf('   - Region  : %s', $i->placement->availabilityZone));
+		$this->out(sprintf('   - Device  : %s', $i->rootDeviceType));
+		$this->out(sprintf('   - Launched: %s', $i->launchTime));
+		$this->out();
+	}
+	
+	protected function _decorateStatus($status) {
+		$type = '';
+		switch ($status) {
+			case 'terminated':
+				$type = 'question'; break;
+			case 'pending':
+			case 'shutting-down':
+				$type = 'warning'; break;
+			case 'running':
+				$type = 'success'; break;
+			default:
+				return $status;
+		}
+		return sprintf('<%s>%s</%s>', $type, $status, $type);
+	}
+	
+	public function terminate() {
 		if (count($this->args) != 1) {
 			$this->out('Please specify "all" or an instance ID.');
 			return;
 		}
 		
+		$Server = new AmazonServer();
+
 		if ($this->args[0] == 'all') {
-			// Stop all
-			// Need to get describe working right first.
-			return;
+			$instances = $Server->describe();
+			$ids = array();
+			foreach ($instances as $i) {
+				$i = $i->instancesSet->item;
+				$ids[] = $i->instanceId;
+			}
+		} else {
+			$ids = $this->args;
 		}
 		
-		$instanceId = $this->args[0];
-		$Server = new AmazonServer();
-		$Server->instanceId = $instanceId;
-		$Server->terminate();
+		$response = $Server->terminate($ids);
+		foreach ($response->instancesSet->item as $i) {
+			$this->out(sprintf('<info>Instance ( ID: %s )</info> => %s' , $i->instanceId, $this->_decorateStatus($i->currentState->name)));
+		}
 	}
-	
 }

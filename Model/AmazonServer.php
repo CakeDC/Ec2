@@ -143,12 +143,17 @@ class AmazonServer extends CakeDocument {
  *
  * @return CFSimpleXML Response Object
  */
-	public function terminate() {
-		if (!$this->instanceId) {
+	public function terminate($ids = array()) {
+		if (empty($ids) && !$this->instanceId) {
 			throw new EC2_Exception('AmazonServer has no instance Id');
 		}
+		
+		if (empty($ids)) {
+			$ids = array($this->instanceId);
+		}
+		
 		$ec2 = $this->_getEC2Object();
-		$response = $ec2->terminate_instances($this->instanceId);
+		$response = $ec2->terminate_instances($ids);
 		if (!$response->isOK()) {
 			throw new EC2_Exception($this->_errorMessage('Failed to terminate instance ' . $this->instanceId, $response));
 		}
