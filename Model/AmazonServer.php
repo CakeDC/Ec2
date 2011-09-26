@@ -117,7 +117,7 @@ class AmazonServer extends CakeDocument {
 			$this->options
 		);
 		if (!$response->isOK()) {
-			throw new EC2_Exception('Failed to run instance', $response);
+			throw new EC2_Exception($this->_errorMessage('Failed to run instance', $response));
 		}
 
 		return $response->body;
