@@ -5,7 +5,7 @@ use Doctrine\ODM\MongoDB\Mapping\Annotations as ODM;
 // App::import('Ec2.Vendor', 'AmazonEC2', array('file' => App::pluginPath('Ec2') . 'Vendor/AWSSDKforPHP/services/ec2.class.php'));
 
 require(App::pluginPath('Ec2') . 'Vendor/AWSSDKforPHP/sdk.class.php');
-require(App::pluginPath('Ec2') . 'Vendor/AWSSDKforPHP/services/ec2.class.php');
+//require(App::pluginPath('Ec2') . 'Vendor/AWSSDKforPHP/services/ec2.class.php');
 
 App::uses('CakeDocument', 'MongoCake.Model');
 
@@ -210,8 +210,6 @@ class AmazonServer extends CakeDocument {
  * @return boolean True if success
  */
 	protected function _amazonResponseOk(CFResponse $response) {
-		echo "Amazon Response\n";
-		debug($response);
 		return $response->isOK();
 	}
 
