@@ -12,6 +12,8 @@ class AmazonServerShell extends Shell {
 	
 	public function run() {
 		
+		/*** TESTING DATA ***/
+		
 		$region = 'us-east-1';
 		$ami = 'ami-61be7908';
 		$min = 1;
@@ -29,6 +31,8 @@ class AmazonServerShell extends Shell {
 
 		$Server->save();
 		$Server->flush();
+
+		/*** END TESTING DATA ***/
 
 		debug($Server->run());
 

@@ -103,7 +103,7 @@ class AmazonServer extends CakeDocument {
 /**
  * Start a new instance
  *
- * @return boolean True if the operation was a success
+ * @return CFSimpleXML Response object
  */
 	public function run() {
 		if (!$this->imageId) {
@@ -116,13 +116,17 @@ class AmazonServer extends CakeDocument {
 			$this->maximum,
 			$this->options
 		);
-		return $$response->isOK();
+		if (!$response->isOK()) {
+			throw new EC2_Exception('Failed to run instance', $response);
+		}
+
+		return $response->body;
 	}
 
 /**
  * Get a list of all available instances
  *
- * @return void
+ * @return CFSimpleXML Response Object
  * @todo Replace this with a find() implementation
  */
 	public function describe() {
@@ -141,7 +145,7 @@ class AmazonServer extends CakeDocument {
 /**
  * Terminate the instance
  *
- * @return boolean True if the operation was a success
+ * @return CFSimpleXML Response Object
  */
 	public function terminate() {
 		if (!$this->instanceId) {
@@ -149,7 +153,7 @@ class AmazonServer extends CakeDocument {
 		}
 		$ec2 = $this->_getEC2Object();
 		$response = $ec2->terminate_instances($this->instanceId);
-		if (!$$response->isOK()) {
+		if (!$response->isOK()) {
 			throw new EC2_Exception($this->_errorMessage('Failed to terminate instance ' . $this->instanceId, $response));
 		}
 		
@@ -167,7 +171,7 @@ class AmazonServer extends CakeDocument {
 		}
 		$ec2 = $this->_getEC2Object();
 		$response = $ec2->start_instances($this->instanceId);
-		if (!$$response->isOK()) {
+		if (!$response->isOK()) {
 			throw new EC2_Exception('Failed to start Amazon EC2 instance');
 		}
 		
@@ -185,7 +189,7 @@ class AmazonServer extends CakeDocument {
 		}
 		$ec2 = $this->_getEC2Object();
 		$response = $ec2->stop_instances($this->instanceId);
-		return $$response->isOK();
+		return $response->isOK();
 	}
 
 /**
@@ -199,7 +203,7 @@ class AmazonServer extends CakeDocument {
 		}
 		$ec2 = $this->_getEC2Object();
 		$response = $ec2->reboot_instances($this->instanceId);
-		return $$response->isOK();
+		return $response->isOK();
 	}
 
 /**
