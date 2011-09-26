@@ -41,6 +41,11 @@ class AmazonServerShell extends Shell {
 	public function describe() {
 		$Server = new AmazonServer();
 		$instances = $Server->describe();
+		if (empty($instances)) {
+			$this->out('You have no instances available');
+			$this->out();
+			return;
+		}
 		foreach ($instances as $i) {
 			$i = $i->instancesSet->item;
 			$this->_instanceDetail($i);
@@ -84,6 +89,11 @@ class AmazonServerShell extends Shell {
 
 		if ($this->args[0] == 'all') {
 			$instances = $Server->describe();
+			if (empty($instances)) {
+				$this->out('You have no instances available');
+				$this->out();
+				return;
+			}
 			$ids = array();
 			foreach ($instances as $i) {
 				$i = $i->instancesSet->item;
