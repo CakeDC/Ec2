@@ -38,6 +38,16 @@ class AmazonServerShell extends Shell {
 	public function describe() {
 		$Server = new AmazonServer();
 		$instances = $Server->describe();
+		foreach ($instances as $i) {
+			$i = $i->instancesSet->item;
+			$this->out(sprintf('<info>Instance ( ID: %s )</info>', $i->instanceId));
+			$this->out(sprintf('   - Status  : %s', $i->instanceState->name));
+			$this->out(sprintf('   - Type    : %s', $i->instanceType));
+			$this->out(sprintf('   - AMI     : %s', $i->imageId));
+			$this->out(sprintf('   - Region  : %s', $i->placement->availabilityZone));
+			$this->out(sprintf('   - Launched: %s', $i->launchTime));
+			$this->out();
+		}
 	}
 	
 	public function stop() {

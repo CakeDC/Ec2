@@ -116,7 +116,7 @@ class AmazonServer extends CakeDocument {
 			$this->maximum,
 			$this->options
 		);
-		return $this->_amazonResponseOK($response);
+		return $$response->isOK();
 	}
 
 /**
@@ -131,19 +131,11 @@ class AmazonServer extends CakeDocument {
 		// }
 		$ec2 = $this->_getEC2Object();
 		$response = $ec2->describe_instances();
-
-		debug($response);
-
-		if (isset($response->body->reservationSet->item)) {
-			return $response->body->reservationSet->item;
-		}
-		
-		if (isset($response->body->instancesSet->item)) {
-			return array(0 => $response->body->instancesSet->item);
+		if (!$response->isOK()) {
+			throw new EC2_Exception($this->_errorMessage('Failed to describe instances', $response));
 		}
 
-		return array();
-//		return $this->_amazonResponseOK($response);
+		return $response->body->reservationSet->item;
 	}
 
 /**
@@ -157,14 +149,17 @@ class AmazonServer extends CakeDocument {
 		}
 		$ec2 = $this->_getEC2Object();
 		$response = $ec2->terminate_instances($this->instanceId);
-		debug($response);
-		return $this->_amazonResponseOK($response);
+		if (!$$response->isOK()) {
+			throw new EC2_Exception($this->_errorMessage('Failed to terminate instance ' . $this->instanceId, $response));
+		}
+		
+		return $response->body;
 	}
 
 /**
  * Resume a paused (stopped) instance. Only works for EBS backed instances
  *
- * @return boolean True if the operation was a success
+ * @return CFSimpleXML Object
  */
 	public function start() {
 		if (!$this->instanceId) {
@@ -172,7 +167,11 @@ class AmazonServer extends CakeDocument {
 		}
 		$ec2 = $this->_getEC2Object();
 		$response = $ec2->start_instances($this->instanceId);
-		return $this->_amazonResponseOK($response);
+		if (!$$response->isOK()) {
+			throw new EC2_Exception('Failed to start Amazon EC2 instance');
+		}
+		
+		return $response->body;
 	}
 
 /**
@@ -186,7 +185,7 @@ class AmazonServer extends CakeDocument {
 		}
 		$ec2 = $this->_getEC2Object();
 		$response = $ec2->stop_instances($this->instanceId);
-		return $this->_amazonResponseOK($response);
+		return $$response->isOK();
 	}
 
 /**
@@ -200,17 +199,7 @@ class AmazonServer extends CakeDocument {
 		}
 		$ec2 = $this->_getEC2Object();
 		$response = $ec2->reboot_instances($this->instanceId);
-		return $this->_amazonResponseOK($response);
-	}
-
-/**
- * Determine if the response from Amazon was "Ok"
- *
- * @param CFResponse $response Response object
- * @return boolean True if success
- */
-	protected function _amazonResponseOk(CFResponse $response) {
-		return $response->isOK();
+		return $$response->isOK();
 	}
 
 /**
@@ -224,5 +213,16 @@ class AmazonServer extends CakeDocument {
 			$ec2->set_region($this->region);
 		}
 		return $ec2;
+	}
+
+/**
+ * Generate an error message with the supplied string and CFResponse object
+ *
+ * @param string $message Message
+ * @param CFReponse $response CFResponse from Amazon
+ * @return string Error message
+ */
+	protected function _errorMessage($message, CFReponse $response) {
+		return $message . "\n" . $response->toString();
 	}
 }
