@@ -130,11 +130,7 @@ class AmazonServer extends CakeDocument {
  * @todo Replace this with a find() implementation
  */
 	public function describe() {
-		// if (!$this->instanceId) {
-		// 	throw new EC2_Exception('AmazonServer has no instance Id');
-		// }
-		$ec2 = $this->_getEC2Object();
-		$response = $ec2->describe_instances();
+		$response = $this->_getEC2Object()->describe_instances();
 		if (!$response->isOK()) {
 			throw new EC2_Exception($this->_errorMessage('Failed to describe instances', $response));
 		}
