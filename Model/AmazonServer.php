@@ -1,7 +1,12 @@
 <?php
 use Doctrine\ODM\MongoDB\Mapping\Annotations as ODM;
 
-App::import('Vendor', 'CFRuntime', null, null, 'AWSSDKforPHP/sdk.class.php');
+// App::import('Ec2.Vendor', 'CFRuntime', array('file' => App::pluginPath('Ec2') . 'Vendor/AWSSDKforPHP/sdk.class.php'));
+// App::import('Ec2.Vendor', 'AmazonEC2', array('file' => App::pluginPath('Ec2') . 'Vendor/AWSSDKforPHP/services/ec2.class.php'));
+
+require(App::pluginPath('Ec2') . 'Vendor/AWSSDKforPHP/sdk.class.php');
+require(App::pluginPath('Ec2') . 'Vendor/AWSSDKforPHP/services/ec2.class.php');
+
 App::uses('CakeDocument', 'MongoCake.Model');
 
 /** @ODM\Document */
@@ -121,12 +126,38 @@ class AmazonServer extends CakeDocument {
  * @todo Replace this with a find() implementation
  */
 	public function describe() {
+		// if (!$this->instanceId) {
+		// 	throw new EC2_Exception('AmazonServer has no instance Id');
+		// }
+		$ec2 = $this->_getEC2Object();
+		$response = $ec2->describe_instances();
+
+		debug($response);
+
+		if (isset($response->body->reservationSet->item)) {
+			return $response->body->reservationSet->item;
+		}
+		
+		if (isset($response->body->instancesSet->item)) {
+			return array(0 => $response->body->instancesSet->item);
+		}
+
+		return array();
+//		return $this->_amazonResponseOK($response);
+	}
+
+/**
+ * Terminate the instance
+ *
+ * @return boolean True if the operation was a success
+ */
+	public function terminate() {
 		if (!$this->instanceId) {
 			throw new EC2_Exception('AmazonServer has no instance Id');
 		}
 		$ec2 = $this->_getEC2Object();
-		$response = $ec2->describe_instances();
-		var_dump($response);
+		$response = $ec2->terminate_instances($this->instanceId);
+		debug($response);
 		return $this->_amazonResponseOK($response);
 	}
 
@@ -179,6 +210,8 @@ class AmazonServer extends CakeDocument {
  * @return boolean True if success
  */
 	protected function _amazonResponseOk(CFResponse $response) {
+		echo "Amazon Response\n";
+		debug($response);
 		return $response->isOK();
 	}
 
