@@ -9,40 +9,57 @@ App::uses('AmazonServer', 'Ec2.Model');
  * @subpackage Ec2.Console.Command
  */
 class AmazonServerShell extends Shell {
+
+	public function getOptionParser() {
+		$parser = parent::getOptionParser();
+		$parser
+			->addSubcommand('run', array(
+				'help' => 'Starts an instance which settings are already stored in database',
+				'parser' => array(
+					'description' =>
+						'This command is used to start server instances for the first time. ' .
+						'It takes a database id to lookup the stored server settings and passes the information to amazon services.',
+					'arguments' => array(
+						'id' => array(
+							'help' => 'The database id holding the settings for the instance',
+							'required' => true
+						)
+					)
+				)
+			))
+			->addSubcommand('describe', array(
+				'help' => 'Returns all information from running instances'
+			))
+			->addSubcommand('terminate', array(
+				'help' => 'Shuts down an instance',
+				'parser' => array(
+					'description' => 'Use this command to stop a known server instance',
+					'arguments' => array(
+						'instanceID' => array(
+							'help' => 'The Amazon server instance id to terminate. If the word <info>all</info> is passed ' .
+								'all running instances will be stopped',
+							'required' => true
+						)
+					)
+				)
+			));
+		return $parser;
+	}
 	
 	public function run() {
-		
-		/*** TESTING DATA ***/
-		
-		$region = 'us-east-1';
-		$ami = 'ami-61be7908';
-		$min = 1;
-		$max = 1;
-		
-		$Server = new AmazonServer();
-		$Server->region = $region;
-		$Server->imageId = $ami;
-		$Server->minimum = $min;
-		$Server->maximum = $max;
-		$Server->options = array(
-			'InstanceType' => 't1.micro',
-			'SecurityGroupId' => 'sg-c04edaa9',
-		);
-
-		$Server->save();
-		$Server->flush();
-
-		/*** END TESTING DATA ***/
-
+		$Server = AmazonServer::find('first', array('conditions' => array('id' => $this->args[0])));
+		if (!$Server) {
+			$this->err('<error>Not a valid instance id: ' . $this->args[0] . '</error>');
+			return;
+		}
 		$response = $Server->run();
 		$this->_instanceDetail($response->instancesSet->item);
 	}
 
 	public function describe() {
-		$Server = new AmazonServer();
-		$instances = $Server->describe();
+		$instances = AmazonServer::instances();
 		if (empty($instances)) {
-			$this->out('You have no instances available');
+			$this->out('<warning>You have no instances available</warning>');
 			$this->out();
 			return;
 		}
@@ -80,18 +97,10 @@ class AmazonServerShell extends Shell {
 	}
 	
 	public function terminate() {
-		if (count($this->args) != 1) {
-			$this->out('Please specify "all" or an instance ID.');
-			return;
-		}
-		
-		$Server = new AmazonServer();
-
 		if ($this->args[0] == 'all') {
-			$instances = $Server->describe();
+			$instances = AmazonServer::instances();
 			if (empty($instances)) {
-				$this->out('You have no instances available');
-				$this->out();
+				$this->out('<info>You have no instances available</info>');
 				return;
 			}
 			$ids = array();
@@ -103,9 +112,13 @@ class AmazonServerShell extends Shell {
 			$ids = $this->args;
 		}
 		
-		$response = $Server->terminate($ids);
+		$response = AmazonServer::terminateAll($ids);
 		foreach ($response->instancesSet->item as $i) {
-			$this->out(sprintf('<info>Instance ( ID: %s )</info> => %s' , $i->instanceId, $this->_decorateStatus($i->currentState->name)));
+			$this->out(sprintf(
+				'<info>Instance ( ID: %s )</info> => %s',
+				$i->instanceId,
+				$this->_decorateStatus($i->currentState->name)
+			));
 		}
 	}
 }

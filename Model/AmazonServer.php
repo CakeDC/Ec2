@@ -74,7 +74,7 @@ class AmazonServer extends CakeDocument {
  * @ODM\Hash
  * @var array
  */
-	public $options;
+	public $options = array();
 
 /**
  * Creation date and time
@@ -92,13 +92,6 @@ class AmazonServer extends CakeDocument {
  */
 	public $modified;
 
-/**
- * Constructor
- *
- */
-	public function __construct() {
-		$this->options = array();
-	}
 
 /**
  * Start a new instance
@@ -109,7 +102,7 @@ class AmazonServer extends CakeDocument {
 		if (!$this->imageId) {
 			throw new EC2_Exception('AmazonServer has no Image ID');
 		}
-		$ec2 = $this->_getEC2Object();
+		$ec2 = $this->_getEC2Object($this->region);
 		$response = $ec2->run_instances(
 			$this->imageId,
 			$this->minimum,
@@ -129,8 +122,8 @@ class AmazonServer extends CakeDocument {
  * @return CFSimpleXML Response Object
  * @todo Replace this with a find() implementation
  */
-	public function describe() {
-		$response = $this->_getEC2Object()->describe_instances();
+	public static function instances() {
+		$response = static::_getEC2Object()->describe_instances();
 		if (!$response->isOK()) {
 			throw new EC2_Exception($this->_errorMessage('Failed to describe instances', $response));
 		}
@@ -139,26 +132,37 @@ class AmazonServer extends CakeDocument {
 	}
 
 /**
- * Terminate the instance
+ * Terminates a group of instances by id
  *
  * @return CFSimpleXML Response Object
  */
-	public function terminate($ids = array()) {
-		if (empty($ids) && !$this->instanceId) {
-			throw new EC2_Exception('AmazonServer has no instance Id');
-		}
-		
+	public static function terminateAll(array $ids) {
 		if (empty($ids)) {
-			$ids = array($this->instanceId);
+			throw new EC2_Exception('No instances specified to be terminated');
 		}
-		
-		$ec2 = $this->_getEC2Object();
+
+		$ec2 = static::_getEC2Object();
 		$response = $ec2->terminate_instances($ids);
 		if (!$response->isOK()) {
-			throw new EC2_Exception($this->_errorMessage('Failed to terminate instance ' . $this->instanceId, $response));
+			throw new EC2_Exception(static::_errorMessage('Failed to terminate instance(s) ' . implode(', ', $ids), $response));
 		}
 		
 		return $response->body;
+	}
+
+/**
+ * Terminates the instance
+ *
+ * @return CFSimpleXML Response Object
+ */
+	public function terminate() {
+		if (!$this->instanceId) {
+			throw new EC2_Exception('AmazonServer has no instance Id');
+		}
+		if (empty($ids)) {
+			$ids = array($this->instanceId);
+		}
+		return $this->terminateAll(array($this->instanceId));
 	}
 
 /**
@@ -170,7 +174,7 @@ class AmazonServer extends CakeDocument {
 		if (!$this->instanceId) {
 			throw new EC2_Exception('AmazonServer has no instance Id');
 		}
-		$ec2 = $this->_getEC2Object();
+		$ec2 = $this->_getEC2Object($this->region);
 		$response = $ec2->start_instances($this->instanceId);
 		if (!$response->isOK()) {
 			throw new EC2_Exception('Failed to start Amazon EC2 instance');
@@ -188,7 +192,7 @@ class AmazonServer extends CakeDocument {
 		if (!$this->instanceId) {
 			throw new EC2_Exception('AmazonServer has no instance Id');
 		}
-		$ec2 = $this->_getEC2Object();
+		$ec2 = $this->_getEC2Object($this->region);
 		$response = $ec2->stop_instances($this->instanceId);
 		return $response->isOK();
 	}
@@ -202,7 +206,7 @@ class AmazonServer extends CakeDocument {
 		if (!$this->instanceId) {
 			throw new EC2_Exception('AmazonServer has no instance Id');
 		}
-		$ec2 = $this->_getEC2Object();
+		$ec2 = $this->_getEC2Object($this>region);
 		$response = $ec2->reboot_instances($this->instanceId);
 		return $response->isOK();
 	}
@@ -212,10 +216,10 @@ class AmazonServer extends CakeDocument {
  *
  * @return AmazonEC2
  */
-	protected function _getEC2Object() {
+	protected static function _getEC2Object($region = null) {
 		$ec2 = new AmazonEC2();
-		if (!empty($this->region)) {
-			$ec2->set_region($this->region);
+		if (!empty($region)) {
+			$ec2->set_region($region);
 		}
 		return $ec2;
 	}
@@ -227,7 +231,7 @@ class AmazonServer extends CakeDocument {
  * @param CFReponse $response CFResponse from Amazon
  * @return string Error message
  */
-	protected function _errorMessage($message, CFReponse $response) {
+	protected static function _errorMessage($message, CFReponse $response) {
 		return $message . "\n" . $response->toString();
 	}
 }
