@@ -1,11 +1,6 @@
 <?php
 use Doctrine\ODM\MongoDB\Mapping\Annotations as ODM;
-
-// App::import('Ec2.Vendor', 'CFRuntime', array('file' => App::pluginPath('Ec2') . 'Vendor/AWSSDKforPHP/sdk.class.php'));
-// App::import('Ec2.Vendor', 'AmazonEC2', array('file' => App::pluginPath('Ec2') . 'Vendor/AWSSDKforPHP/services/ec2.class.php'));
-
 require(App::pluginPath('Ec2') . 'Vendor/AWSSDKforPHP/sdk.class.php');
-//require(App::pluginPath('Ec2') . 'Vendor/AWSSDKforPHP/services/ec2.class.php');
 
 App::uses('CakeDocument', 'MongoCake.Model');
 
@@ -100,7 +95,7 @@ class AmazonServer extends CakeDocument {
  */
 	public function run() {
 		if (!$this->imageId) {
-			throw new EC2_Exception('AmazonServer has no Image ID');
+			throw new CakeException('AmazonServer has no Image ID');
 		}
 		$ec2 = $this->_getEC2Object($this->region);
 		$response = $ec2->run_instances(
@@ -110,7 +105,7 @@ class AmazonServer extends CakeDocument {
 			$this->options
 		);
 		if (!$response->isOK()) {
-			throw new EC2_Exception($this->_errorMessage('Failed to run instance', $response));
+			throw new CakeException($this->_errorMessage('Failed to run instance', $response));
 		}
 
 		return $response->body;
@@ -125,7 +120,7 @@ class AmazonServer extends CakeDocument {
 	public static function instances() {
 		$response = static::_getEC2Object()->describe_instances();
 		if (!$response->isOK()) {
-			throw new EC2_Exception($this->_errorMessage('Failed to describe instances', $response));
+			throw new CakeException($this->_errorMessage('Failed to describe instances', $response));
 		}
 
 		return $response->body->reservationSet->item;
@@ -138,13 +133,13 @@ class AmazonServer extends CakeDocument {
  */
 	public static function terminateAll(array $ids) {
 		if (empty($ids)) {
-			throw new EC2_Exception('No instances specified to be terminated');
+			throw new CakeException('No instances specified to be terminated');
 		}
 
 		$ec2 = static::_getEC2Object();
 		$response = $ec2->terminate_instances($ids);
 		if (!$response->isOK()) {
-			throw new EC2_Exception(static::_errorMessage('Failed to terminate instance(s) ' . implode(', ', $ids), $response));
+			throw new CakeException(static::_errorMessage('Failed to terminate instance(s) ' . implode(', ', $ids), $response));
 		}
 		
 		return $response->body;
@@ -157,7 +152,7 @@ class AmazonServer extends CakeDocument {
  */
 	public function terminate() {
 		if (!$this->instanceId) {
-			throw new EC2_Exception('AmazonServer has no instance Id');
+			throw new CakeException('AmazonServer has no instance Id');
 		}
 		if (empty($ids)) {
 			$ids = array($this->instanceId);
@@ -172,12 +167,12 @@ class AmazonServer extends CakeDocument {
  */
 	public function start() {
 		if (!$this->instanceId) {
-			throw new EC2_Exception('AmazonServer has no instance Id');
+			throw new CakeException('AmazonServer has no instance Id');
 		}
 		$ec2 = $this->_getEC2Object($this->region);
 		$response = $ec2->start_instances($this->instanceId);
 		if (!$response->isOK()) {
-			throw new EC2_Exception('Failed to start Amazon EC2 instance');
+			throw new CakeException('Failed to start Amazon EC2 instance');
 		}
 		
 		return $response->body;
@@ -190,7 +185,7 @@ class AmazonServer extends CakeDocument {
  */
 	public function stop() {
 		if (!$this->instanceId) {
-			throw new EC2_Exception('AmazonServer has no instance Id');
+			throw new CakeException('AmazonServer has no instance Id');
 		}
 		$ec2 = $this->_getEC2Object($this->region);
 		$response = $ec2->stop_instances($this->instanceId);
@@ -204,7 +199,7 @@ class AmazonServer extends CakeDocument {
  */
 	public function reboot() {
 		if (!$this->instanceId) {
-			throw new EC2_Exception('AmazonServer has no instance Id');
+			throw new CakeException('AmazonServer has no instance Id');
 		}
 		$ec2 = $this->_getEC2Object($this>region);
 		$response = $ec2->reboot_instances($this->instanceId);
