@@ -120,6 +120,10 @@ class AmazonServer extends CakeDocument {
 		'instances' => true
 	);
 
+	public function getId() {
+		return $this->id;
+	}
+
 /**
  * Start a new instance
  *

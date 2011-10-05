@@ -171,7 +171,7 @@ class AwsSource {
 		}
 		if (is_object(current($servers))) {
 			$isDocument = true;
-			$ids = Set::extract($servers, '{s}.instanceId');
+			$ids = Set::extract($servers, '{n}.instanceId');
 		} else {
 			$ids = $servers;
 		}
@@ -237,7 +237,7 @@ class AwsSource {
  * Terminates server instances
  *
  * @param array $servers accepts a list of server instances as model objects, or a list of instanceId strings
- * @return void
+ * @return array instances terminated
  */
 	public function terminate($servers) {
 		$response = $this->execute('terminate', $servers);
@@ -245,26 +245,36 @@ class AwsSource {
 	}
 
 /**
- * Start the server instances
+ * Start server instances
  *
- * @param string $servers 
- * @return void
- * @author Jose Lorenzo Rodriguez
+ * @param array $servers accepts a list of server instances as model objects, or a list of instanceId strings
+ * @return array instances started
  */
 	public function start($servers) {
 		$response = $this->execute('start', $servers);
-		debug($response->asXML());
 		return $this->updateServerProperty('instanceState', $response->instancesSet, 'currentState/name');
 	}
 
+/**
+ * Stops server instances
+ *
+ * @param array $servers accepts a list of server instances as model objects, or a list of instanceId strings
+ * @return array instances stopped
+ */
 	public function stop($servers) {
 		$response = $this->execute('stop', $servers);
-		return $this->updateServerProperty('instanceState', $response->instancesSet);
+		return $this->updateServerProperty('instanceState', $response->instancesSet, 'currentState/name');
 	}
 
+/**
+ * Reboots server instances
+ *
+ * @param array $servers accepts a list of server instances as model objects, or a list of instanceId strings
+ * @return boolean success
+ */
 	public function reboot($servers) {
 		$response = $this->execute('reboot', $servers);
-		return $this->updateServerProperty('instanceState', $response->instancesSet);
+		return json_decode((string) $response->return);
 	}
 
 /**

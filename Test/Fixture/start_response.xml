@@ -1,0 +1,16 @@
+<StartInstancesResponse ns="http://ec2.amazonaws.com/doc/2011-07-15/">
+    <requestId>057e4c26-1acc-42d5-b360-714369bbc4ad</requestId>
+    <instancesSet>
+        <item>
+            <instanceId>i-00f1a560</instanceId>
+            <currentState>
+                <code>15</code>
+                <name>pending</name>
+            </currentState>
+            <previousState>
+                <code>16</code>
+                <name>stopped</name>
+            </previousState>
+        </item>
+    </instancesSet>
+</StartInstancesResponse>
