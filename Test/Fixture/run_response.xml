@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RunInstancesResponse ns="http://ec2.amazonaws.com/doc/2011-07-15/">
+    <requestId>a5d1dd19-739d-4f1d-9c0b-9ebd833e96e1</requestId>
+    <reservationId>r-86fb20e8</reservationId>
+    <ownerId>766742347447</ownerId>
+    <groupSet>
+        <item>
+            <groupId>sg-c0234aa9</groupId>
+            <groupName>SSH and Web</groupName>
+        </item>
+    </groupSet>
+    <instancesSet>
+        <item>
+            <instanceId>i-481f4b28</instanceId>
+            <imageId>ami-61be7908</imageId>
+            <instanceState>
+                <code>0</code>
+                <name>pending</name>
+            </instanceState>
+            <privateDnsName/>
+            <dnsName/>
+            <reason/>
+            <amiLaunchIndex>0</amiLaunchIndex>
+            <productCodes/>
+            <instanceType>t1.micro</instanceType>
+            <launchTime>2011-10-05T19:18:24.000Z</launchTime>
+            <placement>
+                <availabilityZone>us-east-1c</availabilityZone>
+                <groupName/>
+                <tenancy>default</tenancy>
+            </placement>
+            <kernelId>aki-407d9529</kernelId>
+            <monitoring>
+                <state>disabled</state>
+            </monitoring>
+            <groupSet>
+                <item>
+                    <groupId>sg-c04edaa9</groupId>
+                    <groupName>SSH and Web</groupName>
+                </item>
+            </groupSet>
+            <stateReason>
+                <code>pending</code>
+                <message>pending</message>
+            </stateReason>
+            <rootDeviceType>ebs</rootDeviceType>
+            <rootDeviceName>/dev/sda1</rootDeviceName>
+            <blockDeviceMapping/>
+            <virtualizationType>paravirtual</virtualizationType>
+            <clientToken/>
+            <hypervisor>xen</hypervisor>
+        </item>
+    </instancesSet>
+</RunInstancesResponse>

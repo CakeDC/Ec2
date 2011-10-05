@@ -1,11 +1,16 @@
 <?php
 use Doctrine\ODM\MongoDB\Mapping\Annotations as ODM;
-require(App::pluginPath('Ec2') . 'Vendor/AWSSDKforPHP/sdk.class.php');
-
 App::uses('CakeDocument', 'MongoCake.Model');
 
 /** @ODM\Document */
 class AmazonServer extends CakeDocument {
+
+/**
+ * Which datasource configuration to use for connecting to Amazon
+ *
+ * @var string
+ */
+	public static $useAmazonConfig = 'aws';
 
 /**
  * Server Id
@@ -40,23 +45,15 @@ class AmazonServer extends CakeDocument {
 	public $imageId;
 
 /**
- * Minimum number of instances to start
+ * The instance type
  *
- * @ODM\Int
- * @var int
+ * @ODM\String
+ * @var string
  */
-	public $minimum = 1;
-	
-/**
- * Maximum number of instances to start
- *
- * @ODM\Int
- * @var int
- */
-	public $maximum = 1;
+	public $instanceType;
 
 /**
- * Public IP Address (DNS)
+ * Public IP Address
  *
  * @ODM\String
  * @var string
@@ -64,7 +61,39 @@ class AmazonServer extends CakeDocument {
 	public $ipAddress;
 
 /**
- * Run options
+ * Public DNS
+ *
+ * @ODM\String
+ * @var string
+ */
+	public $dnsName;
+
+/**
+ * Server instance state
+ *
+ * @ODM\String
+ * @var string
+ */
+	public $instanceState;
+
+/**
+ * Root device type
+ *
+ * @ODM\String
+ * @var string
+ */
+	public $rootDeviceType;
+
+/**
+ * Time the instance was launched
+ *
+ * @ODM\Date
+ * @var DateTime
+ */
+	public $launchTime;
+
+/**
+ * Options for running
  *
  * @ODM\Hash
  * @var array
@@ -87,6 +116,9 @@ class AmazonServer extends CakeDocument {
  */
 	public $modified;
 
+	public static $findMethods = array(
+		'instances' => true
+	);
 
 /**
  * Start a new instance
@@ -97,33 +129,22 @@ class AmazonServer extends CakeDocument {
 		if (!$this->imageId) {
 			throw new CakeException('AmazonServer has no Image ID');
 		}
-		$ec2 = $this->_getEC2Object($this->region);
-		$response = $ec2->run_instances(
-			$this->imageId,
-			$this->minimum,
-			$this->maximum,
-			$this->options
-		);
-		if (!$response->isOK()) {
-			throw new CakeException($this->_errorMessage('Failed to run instance', $response));
-		}
-
-		return $response->body;
+		return static::getAmazonSource()->run($this, $this->options);
 	}
 
 /**
- * Get a list of all available instances
+ * Gets a list of all available instances
  *
- * @return CFSimpleXML Response Object
- * @todo Replace this with a find() implementation
+ * @return array
  */
-	public static function instances() {
-		$response = static::_getEC2Object()->describe_instances();
-		if (!$response->isOK()) {
-			throw new CakeException($this->_errorMessage('Failed to describe instances', $response));
+	protected static function _findInstances($state, $query) {
+		if ($state === 'before') {
+			if (!empty($query['refresh'])) {
+				static::getAmazonSource()->instances(array('refreshOnly' => true));
+				static::getDataSource()->commit();
+			}
 		}
-
-		return $response->body->reservationSet->item;
+		return $query;
 	}
 
 /**
@@ -136,13 +157,7 @@ class AmazonServer extends CakeDocument {
 			throw new CakeException('No instances specified to be terminated');
 		}
 
-		$ec2 = static::_getEC2Object();
-		$response = $ec2->terminate_instances($ids);
-		if (!$response->isOK()) {
-			throw new CakeException(static::_errorMessage('Failed to terminate instance(s) ' . implode(', ', $ids), $response));
-		}
-		
-		return $response->body;
+		return static::getAmazonSource()->terminate($ids);
 	}
 
 /**
@@ -169,13 +184,7 @@ class AmazonServer extends CakeDocument {
 		if (!$this->instanceId) {
 			throw new CakeException('AmazonServer has no instance Id');
 		}
-		$ec2 = $this->_getEC2Object($this->region);
-		$response = $ec2->start_instances($this->instanceId);
-		if (!$response->isOK()) {
-			throw new CakeException('Failed to start Amazon EC2 instance');
-		}
-		
-		return $response->body;
+		return static::getAmazonSource()->start($this);
 	}
 
 /**
@@ -187,9 +196,7 @@ class AmazonServer extends CakeDocument {
 		if (!$this->instanceId) {
 			throw new CakeException('AmazonServer has no instance Id');
 		}
-		$ec2 = $this->_getEC2Object($this->region);
-		$response = $ec2->stop_instances($this->instanceId);
-		return $response->isOK();
+		return static::getAmazonSource()->stop($this);
 	}
 
 /**
@@ -201,9 +208,7 @@ class AmazonServer extends CakeDocument {
 		if (!$this->instanceId) {
 			throw new CakeException('AmazonServer has no instance Id');
 		}
-		$ec2 = $this->_getEC2Object($this>region);
-		$response = $ec2->reboot_instances($this->instanceId);
-		return $response->isOK();
+		return static::getAmazonSource()->reboot($this);
 	}
 
 /**
@@ -211,22 +216,7 @@ class AmazonServer extends CakeDocument {
  *
  * @return AmazonEC2
  */
-	protected static function _getEC2Object($region = null) {
-		$ec2 = new AmazonEC2();
-		if (!empty($region)) {
-			$ec2->set_region($region);
-		}
-		return $ec2;
-	}
-
-/**
- * Generate an error message with the supplied string and CFResponse object
- *
- * @param string $message Message
- * @param CFReponse $response CFResponse from Amazon
- * @return string Error message
- */
-	protected static function _errorMessage($message, CFReponse $response) {
-		return $message . "\n" . $response->toString();
+	protected static function getAmazonSource() {
+		return ConnectionManager::getDataSource(static::$useAmazonConfig);
 	}
 }

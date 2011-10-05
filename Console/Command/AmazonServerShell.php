@@ -30,6 +30,18 @@ class AmazonServerShell extends Shell {
 			->addSubcommand('describe', array(
 				'help' => 'Returns all information from running instances'
 			))
+			->addSubcommand('start', array(
+				'help' => 'starts an instance',
+				'parser' => array(
+					'description' => 'Use this command to start a known server instance',
+					'arguments' => array(
+						'instanceID' => array(
+							'help' => 'The Amazon server instance id to start',
+							'required' => true
+						)
+					)
+				)
+			))
 			->addSubcommand('terminate', array(
 				'help' => 'Shuts down an instance',
 				'parser' => array(
@@ -45,6 +57,10 @@ class AmazonServerShell extends Shell {
 			));
 		return $parser;
 	}
+
+	public function create() {
+		
+	}
 	
 	public function run() {
 		$Server = AmazonServer::find('first', array('conditions' => array('id' => $this->args[0])));
@@ -53,30 +69,30 @@ class AmazonServerShell extends Shell {
 			return;
 		}
 		$response = $Server->run();
+		$Server->flush();
 		$this->_instanceDetail($response->instancesSet->item);
 	}
 
 	public function describe() {
-		$instances = AmazonServer::instances();
+		$instances = AmazonServer::find('instances', array('refresh' => true));
 		if (empty($instances)) {
 			$this->out('<warning>You have no instances available</warning>');
 			$this->out();
 			return;
 		}
 		foreach ($instances as $i) {
-			$i = $i->instancesSet->item;
 			$this->_instanceDetail($i);
 		}
 	}
 	
 	protected function _instanceDetail($i) {
 		$this->out(sprintf('<info>Instance ( ID: %s )</info>', $i->instanceId));
-		$this->out(sprintf('   - Status  : %s', $this->_decorateStatus($i->instanceState->name)));
+		$this->out(sprintf('   - Status  : %s', $this->_decorateStatus($i->instanceState)));
 		$this->out(sprintf('   - Type    : %s', $i->instanceType));
 		$this->out(sprintf('   - AMI     : %s', $i->imageId));
-		$this->out(sprintf('   - Region  : %s', $i->placement->availabilityZone));
+		$this->out(sprintf('   - Region  : %s', $i->region));
 		$this->out(sprintf('   - Device  : %s', $i->rootDeviceType));
-		$this->out(sprintf('   - Launched: %s', $i->launchTime));
+		$this->out(sprintf('   - Launched: %s', $i->launchTime->format('Y-m-d H:i:s')));
 		$this->out();
 	}
 	
@@ -112,12 +128,12 @@ class AmazonServerShell extends Shell {
 			$ids = $this->args;
 		}
 		
-		$response = AmazonServer::terminateAll($ids);
-		foreach ($response->instancesSet->item as $i) {
+		$instances = AmazonServer::terminateAll($ids);
+		foreach ($instances as $i) {
 			$this->out(sprintf(
 				'<info>Instance ( ID: %s )</info> => %s',
 				$i->instanceId,
-				$this->_decorateStatus($i->currentState->name)
+				$this->_decorateStatus($i->instanceState)
 			));
 		}
 	}
