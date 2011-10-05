@@ -94,4 +94,25 @@ class AwsSourceTest extends CakeTestCase {
 		$instances = $this->Source->terminate(array($server));
 		$this->assertEquals('shutting-down', $instances[0]->instanceState);
 	}
+
+	public function testStart() {
+		$this->createStub('start_instances', 'start_response.xml');
+		$server = AmazonServer::find('first');
+		$instances = $this->Source->start(array($server));
+		$this->assertEquals('pending', $instances[0]->instanceState);
+	}
+
+	public function testStop() {
+		$this->createStub('stop_instances', 'stop_response.xml');
+		$server = AmazonServer::find('first');
+		$instances = $this->Source->stop(array($server));
+		$this->assertEquals('stopping', $instances[0]->instanceState);
+	}
+
+	public function testReboot() {
+		$this->createStub('reboot_instances', 'reboot_response.xml');
+		$server = AmazonServer::find('first');
+		$result = $this->Source->reboot(array($server));
+		$this->assertTrue($result);
+	}
 }
