@@ -82,7 +82,7 @@ class Ec2Source {
 		foreach ($instances->item as $item) {
 			$instance = $class::find('all', array(
 				'conditions' => array('instanceId' => (string) $item->instanceId)
-			))->findAndUpdate()->refresh()
+			))->findAndUpdate()->returnNew()->refresh()
 				->field('instanceState')->set((string) $item->instanceState->name)
 				->field('ipAddress')->set((string) $item->ipAddress)
 				->field('dnsName')->set((string) $item->dnsName)
@@ -133,6 +133,15 @@ class Ec2Source {
 		return $class;
 	}
 
+/**
+ * Iterates the servers in an Amazon response, looks for already saved servers in database
+ * and updates one property of them extracted from the response xml using $path as xpath
+ *
+ * @param string $property
+ * @param SimpleXMLElement $instances 
+ * @param string $path 
+ * @return array
+ */
 	protected function updateServerProperty($property, $instances, $path = null) {
 		$class = $this->loadDocumentClass();
 		$documents = array();
@@ -203,9 +212,25 @@ class Ec2Source {
 		foreach ($response->body->reservationSet->item as $i) {
 			$documents = array_merge($documents, $this->hydrateSet($i->instancesSet));
 		}
-		if (!empty($options['refreshOnly'])) {
+		if (empty($options['refreshOnly'])) {
 			return $documents;
 		}
+		$this->purgeFromSet($documents);
+	}
+
+/**
+ * Removes documents from persistent storage if they are not present
+ * on the describe response
+ *
+ * @return void
+ */
+	protected function purgeFromSet($documents) {
+		$ids = array();
+		foreach ($documents as $doc) {
+			$ids[] = $doc->id;
+		}
+		$class = $this->loadDocumentClass();
+		$class::find('all')->field('id')->notIn($ids)->remove()->getQuery()->execute();
 	}
 
 /**
