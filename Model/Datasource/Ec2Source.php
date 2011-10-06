@@ -1,6 +1,6 @@
 <?php
 
-class AwsSource {
+class Ec2Source {
 
 /**
  * Holds the config for communicating with Amazon Web Services

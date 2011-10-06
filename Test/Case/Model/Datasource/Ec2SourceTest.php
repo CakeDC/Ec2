@@ -1,5 +1,5 @@
 <?php
-App::uses('AwsSource', 'Ec2.Model/Datasource');
+App::uses('Ec2Source', 'Ec2.Model/Datasource');
 App::uses('ConnectionManager', 'Model');
 App::uses('AmazonServer', 'Ec2.Model');
 
@@ -7,7 +7,7 @@ App::uses('AmazonServer', 'Ec2.Model');
  * This class requires a $awsTest datasource defined in database.php
  *
  */
-class AwsSourceTest extends CakeTestCase {
+class Ec2SourceTest extends CakeTestCase {
 
 	public $fixtures = array('plugin.ec2.amazon_server');
 
@@ -22,13 +22,13 @@ class AwsSourceTest extends CakeTestCase {
 	}
 
 	public function tearDown() {
-		ConnectionManager::drop('__awsSourceTest');
+		ConnectionManager::drop('__Ec2SourceTest');
 	}
 
 	protected function createStub($method, $responseFile) {
-		$sourceClass = get_class($this->getMock('AwsSource', array('getEC2Object')));
+		$sourceClass = get_class($this->getMock('Ec2Source', array('getEC2Object')));
 		$this->config['datasource'] = $sourceClass;
-		$this->Source = ConnectionManager::create('__awsSourceTest', $this->config);
+		$this->Source = ConnectionManager::create('__Ec2SourceTest', $this->config);
 
 		$ec2 = $this->getMock('AmazonEC2', array($method));
 		$body = new SimpleXMLIterator(file_get_contents($this->fixturePath . $responseFile));
