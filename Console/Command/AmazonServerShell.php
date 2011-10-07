@@ -114,8 +114,32 @@ class AmazonServerShell extends Shell {
 						)
 					)
 				)
+			))
+			->addSubcommand('status', array(
+				'help' => 'Outputs an instance state',
+				'parser' => array(
+					'description' => 'Use this command to know the running status for an instance',
+					'arguments' => array(
+						'id' => array(
+							'help' => 'The server internal id',
+							'required' => true
+						)
+					),
+					'options' => array(
+						'no-welcome' => array(
+							'help' => 'Do not show the welcome message (useful for capturing the outputs from another process)',
+							'boolean' => true
+						)
+					)
+				)
 			));
 		return $parser;
+	}
+
+	protected function _welcome() {
+		if (empty($this->params['no-welcome'])) {
+			parent::_welcome();
+		}
 	}
 
 	public function create() {
@@ -247,4 +271,22 @@ class AmazonServerShell extends Shell {
 			));
 		}
 	}
+
+	public function status() {
+		$instances = AmazonServer::find('instances', array('refresh' => true));
+		if (empty($instances)) {
+			$this->out('<warning>You have no instances available</warning>');
+			$this->out();
+			return;
+		}
+		foreach ($instances as $instance) {
+			if ($instance->id == $this->args[0]) {
+				$this->out($instance->instanceState);
+				return 0;
+			}
+		}
+		$this->err('There is no such instance ' . $this->args[0]);
+		return 1;
+	}
+
 }

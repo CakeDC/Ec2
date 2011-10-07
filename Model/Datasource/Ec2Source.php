@@ -230,7 +230,10 @@ class Ec2Source {
 			$ids[] = $doc->id;
 		}
 		$class = $this->loadDocumentClass();
-		$class::find('all')->field('id')->notIn($ids)->remove()->getQuery()->execute();
+		$class::find('all')
+			->field('instanceId')->exists(true)
+			->field('id')->notIn($ids)
+			->remove()->getQuery()->execute();
 	}
 
 /**
