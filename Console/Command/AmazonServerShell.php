@@ -255,7 +255,6 @@ class AmazonServerShell extends Shell {
 			}
 			$ids = array();
 			foreach ($instances as $i) {
-				$i = $i->instancesSet->item;
 				$ids[] = $i->instanceId;
 			}
 		} else {

@@ -102,11 +102,11 @@ class Ec2Source {
  * Creates a new Model object out of an item extracted from an Amazon server response
  *
  * @param SimpleXMLElement $item
- * @param string $class name of the model class to be used for hydration
+ * @param string|object $class name of the model class to be used for hydration or object to be hydrated
  * @return object instance of a Model class
  */
 	protected function hydrate($item, $class) {
-		$document = $class::create(array(
+		$data = array(
 			'instanceId' => (string) $item->instanceId,
 			'instanceState' => (string) $item->instanceState->name,
 			'ipAddress' => (string) $item->ipAddress,
@@ -116,7 +116,15 @@ class Ec2Source {
 			'instanceType' => (string) $item->instanceType,
 			'rootDeviceType' => (string) $item->rootDeviceType,
 			'launchTime' => empty($item->launchTime) ? null : new DateTime((string) $item->launchTime)
-		));
+		);
+
+		if (is_string($class)) {
+			$document = $class::create($data);
+		} else {
+			$document = $class;
+			$document->set($data);
+		}
+
 		$document->save();
 		return $document;
 	}
@@ -256,7 +264,10 @@ class Ec2Source {
 		if (!$response->isOK()) {
 			throw new CakeException($this->_errorMessage('Failed to run instance', $response));
 		}
+		$server = $this->hydrate($response->body->instancesSet->item[0], $server);
+		unset($response->body->instancesSet->item[0]);
 		$documents = $this->hydrateSet($response->body->instancesSet);
+		array_unshift($documents, $server);
 		return $documents;
 	}
 

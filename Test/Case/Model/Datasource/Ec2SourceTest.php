@@ -82,6 +82,7 @@ class Ec2SourceTest extends CakeTestCase {
 		);
 		$instances = $this->Source->run($server, $options);
 		$this->assertEquals(2, count($instances));
+		$this->assertSame($server, $instances[0]);
 		$this->assertEquals('i-4a12252a', $instances[0]->instanceId);
 		$this->assertEquals('pending', $instances[0]->instanceState);
 		$this->assertEquals('i-4c5e352c', $instances[1]->instanceId);
