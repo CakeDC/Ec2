@@ -173,9 +173,6 @@ class AmazonServer extends CakeDocument {
 		if (!$this->instanceId) {
 			throw new CakeException('AmazonServer has no instance Id');
 		}
-		if (empty($ids)) {
-			$ids = array($this->instanceId);
-		}
 		return $this->terminateAll(array($this->instanceId));
 	}
 
