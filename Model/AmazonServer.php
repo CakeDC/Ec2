@@ -26,7 +26,7 @@ class AmazonServer extends CakeDocument {
  * @ODM\String
  * @var string
  */
-	public $instanceId;
+	protected $instanceId;
 
 /**
  * Region in which the instance operates
@@ -34,7 +34,7 @@ class AmazonServer extends CakeDocument {
  * @ODM\String
  * @var string
  */
-	public $region;
+	protected $region;
 
 /**
  * The Amazon Image ID (AMI) to use
@@ -42,7 +42,7 @@ class AmazonServer extends CakeDocument {
  * @ODM\String
  * @var string
  */
-	public $imageId;
+	protected $imageId;
 
 /**
  * The instance type
@@ -50,23 +50,23 @@ class AmazonServer extends CakeDocument {
  * @ODM\String
  * @var string
  */
-	public $instanceType;
+	protected $instanceType;
 
 /**
- * Public IP Address
+ * protected IP Address
  *
  * @ODM\String
  * @var string
  */
-	public $ipAddress;
+	protected $ipAddress;
 
 /**
- * Public DNS
+ * protected DNS
  *
  * @ODM\String
  * @var string
  */
-	public $dnsName;
+	protected $dnsName;
 
 /**
  * Server instance state
@@ -74,7 +74,7 @@ class AmazonServer extends CakeDocument {
  * @ODM\String
  * @var string
  */
-	public $instanceState;
+	protected $instanceState;
 
 /**
  * Root device type
@@ -82,7 +82,7 @@ class AmazonServer extends CakeDocument {
  * @ODM\String
  * @var string
  */
-	public $rootDeviceType;
+	protected $rootDeviceType;
 
 /**
  * Time the instance was launched
@@ -90,7 +90,7 @@ class AmazonServer extends CakeDocument {
  * @ODM\Date
  * @var DateTime
  */
-	public $launchTime;
+	protected $launchTime;
 
 /**
  * Options for running
@@ -98,7 +98,7 @@ class AmazonServer extends CakeDocument {
  * @ODM\Hash
  * @var array
  */
-	public $options = array();
+	protected $options = array();
 
 /**
  * Creation date and time
@@ -106,7 +106,7 @@ class AmazonServer extends CakeDocument {
  * @ODM\Date
  * @var DateTime
  */
-	public $created;
+	protected $created;
 
 /**
  * Modified date and time
@@ -114,7 +114,7 @@ class AmazonServer extends CakeDocument {
  * @ODM\Date
  * @var DateTime
  */
-	public $modified;
+	protected $modified;
 
 	public static $findMethods = array(
 		'instances' => true
@@ -223,4 +223,233 @@ class AmazonServer extends CakeDocument {
 	protected static function getAmazonSource() {
 		return ConnectionManager::getDataSource(static::$useAmazonConfig);
 	}
+
+/**
+ * Returns the instanceId property
+ *
+ * @return string
+ */
+	public function getInstanceId() {
+		return $this->instanceId;
+	}
+
+/**
+ * Sets the value for the instanceId property
+ *
+ * @param string $value
+ * @return void
+ */
+	public function setInstanceId($value) {
+		$this->instanceId = $value;
+	}
+
+/**
+ * Returns the region property
+ *
+ * @return string
+ */
+	public function getRegion() {
+		return $this->region;
+	}
+
+/**
+ * Sets the value for the region property
+ *
+ * @param string $value
+ * @return void
+ */
+	public function setRegion($value) {
+		$this->region = $value;
+	}
+
+/**
+ * Returns the imageId property
+ *
+ * @return string
+ */
+	public function getImageId() {
+		return $this->imageId;
+	}
+
+/**
+ * Sets the value for the imageId property
+ *
+ * @param string $value
+ * @return void
+ */
+	public function setImageId($value) {
+		$this->imageId = $value;
+	}
+
+/**
+ * Returns the instanceType property
+ *
+ * @return string
+ */
+	public function getInstanceType() {
+		return $this->instanceType;
+	}
+
+/**
+ * Sets the value for the instanceType property
+ *
+ * @param string $value
+ * @return void
+ */
+	public function setInstanceType($value) {
+		$this->instanceType = $value;
+	}
+
+/**
+ * Returns the ipAddress property
+ *
+ * @return string
+ */
+	public function getIpAddress() {
+		return $this->ipAddress;
+	}
+
+/**
+ * Sets the value for the ipAddress property
+ *
+ * @param string $value
+ * @return void
+ */
+	public function setIpAddress($value) {
+		$this->ipAddress = $value;
+	}
+
+/**
+ * Returns the dnsName property
+ *
+ * @return string
+ */
+	public function getDnsName() {
+		return $this->dnsName;
+	}
+
+/**
+ * Sets the value for the dnsName property
+ *
+ * @param string $value
+ * @return void
+ */
+	public function setDnsName($value) {
+		$this->dnsName = $value;
+	}
+
+/**
+ * Returns the instanceState property
+ *
+ * @return string
+ */
+	public function getInstanceState() {
+		return $this->instanceState;
+	}
+
+/**
+ * Sets the value for the instanceState property
+ *
+ * @param string $value
+ * @return void
+ */
+	public function setInstanceState($value) {
+		$this->instanceState = $value;
+	}
+
+/**
+ * Returns the rootDeviceType property
+ *
+ * @return string
+ */
+	public function getRootDeviceType() {
+		return $this->rootDeviceType;
+	}
+
+/**
+ * Sets the value for the rootDeviceType property
+ *
+ * @param string $value
+ * @return void
+ */
+	public function setRootDeviceType($value) {
+		$this->rootDeviceType = $value;
+	}
+
+/**
+ * Returns the launchTime property
+ *
+ * @return DateTime
+ */
+	public function getLaunchTime() {
+		return $this->launchTime;
+	}
+
+/**
+ * Sets the value for the launchTime property
+ *
+ * @param DateTime $value
+ * @return void
+ */
+	public function setLaunchTime($value) {
+		$this->launchTime = $value;
+	}
+
+/**
+ * Returns the options property
+ *
+ * @return hash
+ */
+	public function getOptions() {
+		return $this->options;
+	}
+
+/**
+ * Sets the value for the options property
+ *
+ * @param hash $value
+ * @return void
+ */
+	public function setOptions($value) {
+		$this->options = $value;
+	}
+
+/**
+ * Returns the created property
+ *
+ * @return DateTime
+ */
+	public function getCreated() {
+		return $this->created;
+	}
+
+/**
+ * Sets the value for the created property
+ *
+ * @param DateTime $value
+ * @return void
+ */
+	public function setCreated($value) {
+		$this->created = $value;
+	}
+
+/**
+ * Returns the modified property
+ *
+ * @return DateTime
+ */
+	public function getModified() {
+		return $this->modified;
+	}
+
+/**
+ * Sets the value for the modified property
+ *
+ * @param DateTime $value
+ * @return void
+ */
+	public function setModified($value) {
+		$this->modified = $value;
+	}
+
 }
