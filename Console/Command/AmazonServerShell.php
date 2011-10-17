@@ -187,7 +187,9 @@ class AmazonServerShell extends Shell {
 		$this->out(sprintf('   - AMI          : %s', $i->imageId));
 		$this->out(sprintf('   - Region       : %s', $i->region));
 		$this->out(sprintf('   - Device       : %s', $i->rootDeviceType));
-		$this->out(sprintf('   - Launched     : %s', $i->launchTime->format('Y-m-d H:i:s')));
+		if ($i->launchTime) {
+			$this->out(sprintf('   - Launched     : %s', $i->launchTime->format('Y-m-d H:i:s')));
+		}
 		$this->out();
 	}
 	
