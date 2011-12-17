@@ -30,11 +30,10 @@ You need to make CakePHP aware of your plugin, put the following like in your `C
 
 	CakePlugin::load('Ec2');
 
-An example configuration file is in the Ec2 directory `Config/Amazon.php.default`.
+An example configuration file is in the Ec2 directory `Config/Amazon.php.default`. It contains an example of how Config/database.php
+should look like after configuring the new datasource, you can copy the example over to the mentioned file and fill in the details.
 
-Take a copy of this file and place into your application `Config` directory: `Config/Amazon.php`.
-
-The settings in the `Amazon.php` file are taken from your Amazon account settings.
+The settings are taken from your Amazon account settings.
 
 ## CLI Usage ##
 

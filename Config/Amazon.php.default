@@ -8,16 +8,26 @@
  * @copyright Copyright 2011, Cake Development Corporation (http://cakedc.com)
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-$config = array('Amazon' => array(
- 	'AWS_KEY'            => '',
-	'AWS_SECRET_KEY'     => '',
-	'AWS_ACCOUNT_ID'     => '',
-	'AWS_CANONICAL_ID'   => '',
-	'AWS_CANONICAL_NAME' => '',
-	'AWS_CERTIFICATE_AUTHORITY' => false,
-	'AWS_DEFAULT_CACHE_CONFIG'  => '',
-	'AWS_MFA_SERIAL'            => '',
-	'AWS_CLOUDFRONT_KEYPAIR_ID' => '',
-	'AWS_CLOUDFRONT_PRIVATE_KEY_PEM' => '',
-	'AWS_ENABLE_EXTENSIONS' => 'false',
-));
+
+/* Example database.php file config for the Amazon Ec2 plugin */
+
+class DATABASE_CONFIG {
+
+	public $aws = array(
+		'datasource' => 'Ec2.Ec2Source',
+		'AWS_KEY'            => 'mykey',
+		'AWS_SECRET_KEY'     => 'mykeysecret',
+		'AWS_ACCOUNT_ID'     => '23324',
+		'AWS_CANONICAL_ID'   => '12345test',
+		'AWS_CANONICAL_NAME' => 'My Company Name as configure on Amazon',
+		'AWS_CERTIFICATE_AUTHORITY' => false,
+		'AWS_DEFAULT_CACHE_CONFIG'  => '',
+		'AWS_MFA_SERIAL'            => '',
+		'AWS_CLOUDFRONT_KEYPAIR_ID' => 'APKAJ2PHJWKZNTMOVIUQ',
+		'AWS_CLOUDFRONT_PRIVATE_KEY_PEM' => '-----BEGIN RSA PRIVATE KEY-----
+			My private key downloaded from Amazon management console
+	-----END RSA PRIVATE KEY-----',
+		'AWS_ENABLE_EXTENSIONS' => 'false',
+	);
+
+}
