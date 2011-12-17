@@ -26,6 +26,10 @@ Clone this Ec2 repository into your Plugin directory, or setup as a submodule, o
 
 ## Configuration ##
 
+You need to make CakePHP aware of your plugin, put the following like in your `Config/bootstrap.php` file
+
+	CakePlugin::load('Ec2');
+
 An example configuration file is in the Ec2 directory `Config/Amazon.php.default`.
 
 Take a copy of this file and place into your application `Config` directory: `Config/Amazon.php`.
