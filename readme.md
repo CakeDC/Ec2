@@ -1,6 +1,6 @@
 # Amazon EC2 plugin for CakePHP #
 
-Version 1.0
+Version 1.0 for cake 2.x
 
 This plugin will allow you to interface with [Amazon EC2](http://aws.amazon.com) and perform a subset of the functionality that the EC2 environment offers.
 
